@@ -326,7 +326,7 @@
 
                 // If the end of the range is before the minimum or the start of the range is
                 // after the maximum, don't display this range option at all.
-                if ((this.minDate && end.isBefore(this.minDate, this.timepicker ? 'minute' : 'day')) 
+                if ((this.minDate && end.isBefore(this.minDate, this.timepicker ? 'minute' : 'day'))
                   || (maxDate && start.isAfter(maxDate, this.timepicker ? 'minute' : 'day')))
                     continue;
 
@@ -455,6 +455,54 @@
     DateRangePicker.prototype = {
 
         constructor: DateRangePicker,
+
+        setMinDate: function(minDate) {
+        	if (typeof minDate === 'string') {
+                this.minDate = moment(minDate, this.locale.format);
+        	}
+
+            if (typeof minDate === 'object') {
+                this.minDate = moment(minDate);
+            }
+
+            if (this.minDate && this.startDate.isBefore(this.minDate)) {
+                this.startDate = this.minDate;
+            }
+
+            if (this.maxDate && this.startDate.isAfter(this.maxDate)) {
+                this.startDate = this.maxDate;
+            }
+
+            if (!this.isShowing) {
+                this.updateElement();
+            }
+
+            this.updateMonthsInView();
+        },
+
+        setMaxDate: function(maxDate) {
+        	if (typeof maxDate === 'string') {
+        		this.maxDate = moment(maxDate, this.locale.format);
+        	}
+
+            if (typeof maxDate === 'object') {
+            	this.maxDate = moment(maxDate);
+            }
+
+            if (this.endDate.isBefore(this.startDate)) {
+            	this.endDate = this.startDate.clone();
+            }
+
+            if (this.maxDate && this.endDate.isAfter(this.maxDate)) {
+            	this.endDate = this.maxDate;
+            }
+
+            if (!this.isShowing) {
+            	this.updateElement();
+            }
+
+            this.updateMonthsInView();
+        },
 
         setStartDate: function(startDate) {
             if (typeof startDate === 'string')
@@ -1520,7 +1568,7 @@
             this.container.find('input[name="daterangepicker_start"], input[name="daterangepicker_end"]').removeClass('active');
             $(e.target).addClass('active');
 
-            // Set the state such that if the user goes back to using a mouse, 
+            // Set the state such that if the user goes back to using a mouse,
             // the calendars are aware we're selecting the end of the range, not
             // the start. This allows someone to edit the end of a date range without
             // re-selecting the beginning, by clicking on the end date input then
